@@ -1,130 +1,335 @@
-@import url('https://fonts.googleapis.com/css2?family=Macondo&display=swap');
-.calendar-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-  font-family: 'Macondo', cursive;
-  /* --- GLASSMORPHISM (The CLI Look) --- */
-  background: rgba(20, 20, 20, 0.45); /* 65% Opacity Black */
-  backdrop-filter: blur(15px);        /* Blurs the wallpaper behind it */
-  -webkit-backdrop-filter: blur(15px); /* Safari support */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle glass border */
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Deep shadow */
-
-  /* --- 1. IMAGE SECTION (40%) --- */
-  .art-header {
-    flex: 0 0 40%; 
-    height: 40%; 
+.calendar-app {
+    height: 100%;
     width: 100%;
-    position: relative;
-    overflow: hidden;
-    /* Add a border at bottom of image to separate from glass */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-    .month-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      display: block;
-      /* Optional: Dim image slightly to match dark theme */
-      filter: brightness(0.9);
-    }
-  }
-
-  /* --- 2. GRID SECTION (60%) --- */
-  .grid-body {
-    flex: 1; 
-    height: 60%;
-    width: 100%;
-    padding: 1rem; 
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    
-    /* Remove solid background to let glass show through */
-    background: transparent; 
+    background: #161616;
+    color: #e6e6e6;
+    font-family: 'Ubuntu', sans-serif;
+    user-select: none;
+}
 
-    .lower-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem; 
-      flex-shrink: 0;
+/* ---------- Top toolbar: "August 2026 ⌄" opens the date-picker popover ---------- */
+.calendar-toolbar {
+    flex-shrink: 0;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px 0 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 
-      .nav-btn {
-        font-size: 2rem;
-        color: rgba(255, 255, 255, 0.8);
+    .month-select-wrap {
+        position: relative;
+    }
+
+    .month-select {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: none;
+        border: none;
+        outline: 1.5px solid transparent;
+        outline-offset: -1px;
+        color: #eaeaea;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: 'Ubuntu', sans-serif;
         cursor: pointer;
-        padding: 0 10px;
-        transition: 0.2s;
-        &:hover { color: white; transform: scale(1.1); }
-      }
+        padding: 5px 9px;
+        border-radius: 6px;
+        transition: background 0.12s ease;
 
-      .title-group {
-        text-align: center;
-        .year-label { font-size: 0.8rem; color: rgba(255,255,255,0.4); letter-spacing: 2px; }
-        .month-label { margin: 0; font-size: 1.5rem; font-weight: 700; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-      }
+        &:hover { background: rgba(255, 255, 255, 0.08); }
+
+        &.active {
+            background: rgba(255, 255, 255, 0.08);
+            outline-color: #e95420;
+        }
+    }
+}
+
+.chevron-icon {
+    width: 13px;
+    height: 13px;
+    transition: transform 0.15s ease;
+
+    &.up { transform: rotate(180deg); }
+    &.left { transform: rotate(90deg); }
+    &.right { transform: rotate(-90deg); }
+}
+
+/* ---------- "Choose a Date" popover (month/year nav + mini month grid) ---------- */
+.date-picker-popover {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 20;
+    width: 272px;
+    background: #262626;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    padding: 10px 12px 12px;
+    cursor: default;
+
+    .picker-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2px 2px 8px;
     }
 
-    .weekdays-row {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      margin-bottom: 0.5rem;
-      flex-shrink: 0;
-      
-      .weekday { 
-        text-align: center; 
-        color: rgba(255,255,255,0.4); /* Muted text for CLI feel */
-        font-size: 0.75rem; 
-        font-weight: 600; 
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
+    .picker-nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
 
-    .dates-grid {
-      flex-grow: 1; 
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      grid-auto-rows: 1fr; 
-      row-gap: 2px; 
-      
-      .day {
+    .picker-nav-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: rgba(255, 255, 255, 0.9);
+        width: 22px;
+        height: 22px;
+        background: none;
+        border: none;
+        border-radius: 5px;
+        color: #cfcfcf;
+        cursor: pointer;
+        transition: background 0.12s ease;
+
+        &:hover { background: rgba(255, 255, 255, 0.1); }
+    }
+
+    .picker-label {
+        min-width: 46px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: #f2f2f2;
+    }
+
+    .picker-weekdays {
+        display: grid;
+        grid-template-columns: 26px repeat(7, 1fr);
+        padding: 0 0 4px;
+
+        span {
+            text-align: center;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #8a8a8a;
+        }
+    }
+
+    .picker-grid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .picker-row {
+        display: grid;
+        grid-template-columns: 26px repeat(7, 1fr);
+        align-items: center;
+        border-radius: 6px;
+        transition: background 0.12s ease;
+
+        &.current-row {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    }
+
+    .picker-week-num {
+        text-align: center;
+        font-size: 10.5px;
+        color: #6f6f6f;
+    }
+
+    .picker-day {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 2px auto;
+        width: 26px;
+        height: 26px;
+        background: none;
+        border: none;
         border-radius: 50%;
-        font-size: 0.95rem;
-        cursor: default;
-        width: 100%;
-        height: 100%; 
-        max-height: 40px; 
-        margin: auto;
+        font-size: 12.5px;
+        font-family: 'Ubuntu', sans-serif;
+        color: #e6e6e6;
+        cursor: pointer;
+        transition: background 0.12s ease;
+
+        &:hover { background: rgba(255, 255, 255, 0.1); }
+
+        &.muted { color: rgba(255, 255, 255, 0.3); }
+
+        &.selected {
+            outline: 1.5px solid #e95420;
+            outline-offset: -1.5px;
+        }
 
         &.today {
-          background-color: rgba(0, 122, 255, 0.8); /* Semi-transparent Blue */
-          backdrop-filter: blur(5px);
-          font-weight: 700;
-          box-shadow: 0 0 15px rgba(0, 122, 255, 0.4);
-          border: 1px solid rgba(255,255,255,0.2);
-          width: 35px;
-          height: 35px;
-        }
+            background: #e95420;
+            color: #ffffff;
+            font-weight: 700;
 
-        &:hover:not(.empty) { 
-            background: rgba(255,255,255,0.1); 
-            border: 1px solid rgba(255,255,255,0.1);
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
+            &:hover { background: #d84c1c; }
         }
-      }
     }
-  }
+}
+
+/* ---------- Weekday header row ---------- */
+.weekdays-row {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+    .weekday {
+        padding-left: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #8a8a8a;
+    }
+}
+
+/* ---------- The grid itself (month = 42 cells, week = 7 cells) ---------- */
+.dates-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 1fr;
+    overflow: hidden;
+}
+
+.day-cell {
+    position: relative;
+    padding: 8px 0 0 10px;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.15s ease;
+
+    &:nth-child(7n) { border-right: none; }
+
+    &.other-month .day-number {
+        color: rgba(255, 255, 255, 0.28);
+    }
+
+    &.col-hover {
+        background: rgba(255, 255, 255, 0.025);
+    }
+}
+
+.day-number {
+    display: inline-block;
+    font-size: 13px;
+    color: #d6d6d6;
+    line-height: 1;
+
+    &.today {
+        background: #e95420; /* Ubuntu orange */
+        color: #ffffff;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+    }
+}
+
+.month-pill {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    color: #e6e6e6;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+/* ---------- Bottom bar: steppers, Today, Month/Week toggle ---------- */
+.calendar-footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+    .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .stepper {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+        overflow: hidden;
+
+        .stepper-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 15px;
+            background: none;
+            border: none;
+            color: #cfcfcf;
+            cursor: pointer;
+            transition: background 0.12s ease;
+
+            &:hover { background: rgba(255, 255, 255, 0.08); }
+            &:first-child { border-bottom: 1px solid rgba(255, 255, 255, 0.12); }
+        }
+    }
+
+    .today-btn {
+        background: rgba(255, 255, 255, 0.07);
+        border: none;
+        color: #eaeaea;
+        font-size: 12.5px;
+        font-weight: 500;
+        font-family: 'Ubuntu', sans-serif;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.12s ease;
+
+        &:hover { background: rgba(255, 255, 255, 0.13); }
+    }
+
+    .view-toggle {
+        display: flex;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 7px;
+        padding: 2px;
+        gap: 2px;
+
+        .view-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            font-size: 12.5px;
+            font-weight: 500;
+            font-family: 'Ubuntu', sans-serif;
+            padding: 5px 13px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.12s ease, color 0.12s ease;
+
+            &.active { background: #3c3c3c; color: #ffffff; }
+            &:hover:not(.active) { color: #ffffff; }
+        }
+    }
 }

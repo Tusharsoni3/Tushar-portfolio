@@ -1,43 +1,80 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react' // <-- Add useEffect here
 import './app.scss'
 import Dock from './components/Dock'
 import Navbar from './components/Navbar'
 import Terminal from './components/Cli'
-import Spotify from './components/Spotify'
 import Calendar from './components/Calendar'
 import NoteApp from './components/Notes'
 import AboutMe from './components/AboutMe'
+import AppGrid from './components/AppGrid'
+import ResumeViewer from './components/ResumeViewer'
+
 function App() {
+  // --- F11 Message State & Timer ---
+  const [showF11Msg, setShowF11Msg] = useState(true);
 
+  useEffect(() => {
+    // Hide the message after 5 seconds
+    const timer = setTimeout(() => {
+      setShowF11Msg(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
+  // ---------------------------------
 
-  const [windowsState,setWindowsState]  = useState({
+  const [windowsState, setWindowsState] = useState({
     github: false,
     notes: false,
     resume: false,
     spotify: false,
     Terminal: true,
-    calendar:false,
+    calendar: false,
     aboutme: false
   })
 
   const [minimizedWindows, setMinimizedWindows] = useState({
-     Terminal:false,
-    calendar:false,
-    spotify:false,
-    aboutme: false
+    Terminal: false,
+    calendar: false,
+    spotify: false,
+    aboutme: false,
+    resume: false
   })
 
-  return (
-        <main>
-         <Dock 
-         windowsState={windowsState} 
-         setWindowsState={setWindowsState} 
-         minimizedWindows={minimizedWindows}
-         setMinimizedWindows={setMinimizedWindows}
-         />
-         <Navbar/>
+  const [showAppGrid, setShowAppGrid] = useState(false)
 
-        {windowsState.Terminal && (
+  const handleLaunch = (app) => {
+    if (app.kind === 'window') {
+      setWindowsState(s => ({ ...s, [app.id]: true }))
+      setMinimizedWindows(s => ({ ...s, [app.id]: false }))
+    } else if (app.kind === 'external') {
+      window.open(app.href, '_blank')
+    }
+  }
+
+  return (
+    <main>
+      {/* --- F11 Toast Message --- */}
+      <div className={`f11-toast ${!showF11Msg ? 'fade-out' : ''}`}>
+        Press <strong>F11</strong> for the full OS experience
+      </div>
+
+      <Dock 
+        windowsState={windowsState} 
+        setWindowsState={setWindowsState} 
+        minimizedWindows={minimizedWindows}
+        setMinimizedWindows={setMinimizedWindows}
+        showAppGrid={showAppGrid}
+        setShowAppGrid={setShowAppGrid}
+      />
+      <Navbar/>
+
+      <AppGrid
+        visible={showAppGrid}
+        onClose={() => setShowAppGrid(false)}
+        onLaunch={handleLaunch}
+      />
+
+      {windowsState.Terminal && (
         <Terminal 
           windowsName="Terminal" 
           setWindowsState={setWindowsState}
@@ -52,9 +89,10 @@ function App() {
           setWindowsState={setWindowsState}
           isMinimized={minimizedWindows.notes}
           setMinimizedWindows={setMinimizedWindows}
-        />)}
+        />
+      )}
 
-        {windowsState.calendar && (
+      {windowsState.calendar && (
         <Calendar
           windowsName="calendar" 
           setWindowsState={setWindowsState}
@@ -63,7 +101,7 @@ function App() {
         />
       )}
 
-        {windowsState.aboutme && (
+      {windowsState.aboutme && (
         <AboutMe
           windowsName="aboutme" 
           setWindowsState={setWindowsState}
@@ -72,16 +110,15 @@ function App() {
         />
       )}
 
-
-        {windowsState.spotify && (
-        <Spotify
-          windowsName="spotify" 
+      {windowsState.resume && (
+        <ResumeViewer
+          windowsName="resume" 
           setWindowsState={setWindowsState}
-          isMinimized={minimizedWindows.spotify}
+          isMinimized={minimizedWindows.resume} 
           setMinimizedWindows={setMinimizedWindows}
         />
       )}
-        </main>
+    </main>
   )
 }
 

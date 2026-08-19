@@ -1,115 +1,174 @@
-.windows{
-    background: rgba(30, 30, 30, 0.7); 
-    backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%); 
+/* The Rnd library owns the outer wrapper... */
+.rnd-shell.rnd-animating {
+    transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.32s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-  height: 100%;
-  width: 100%;
-    
-    .navbar{
-        background: #2d2d2d; 
-        height: 27px;
+@keyframes window-open {
+    from { opacity: 0; transform: scale(0.9) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes window-close {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to   { opacity: 0; transform: scale(0.92) translateY(6px); }
+}
+
+@keyframes window-minimize {
+    from { opacity: 1; transform: scale(1) translateY(0); }
+    to   { opacity: 0; transform: scale(0.3) translateY(240px); }
+}
+
+@keyframes window-restore {
+    from { opacity: 0; transform: scale(0.3) translateY(240px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.windows {
+    background: #252424; 
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px; /* Ubuntu rounded top corners */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    height: 100%;
+    width: 100%;
+
+    transform-origin: center center;
+    animation: window-open 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    transition: border-radius 0.2s ease, box-shadow 0.2s ease;
+
+    &.closing {
+        animation: window-close 0.18s ease-in forwards;
+        pointer-events: none;
+    }
+
+    &.minimizing {
+        animation: window-minimize 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        transform-origin: center bottom;
+        pointer-events: none;
+    }
+
+    &.restoring {
+        animation: window-restore 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+        transform-origin: center bottom;
+    }
+
+    &.maximized {
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+    }
+
+    .navbar {
+        background: #1a1a1a; /* Darker Ubuntu Yaru title bar */
+        height: 38px;
         display: flex;
         align-items: center;
-        padding: 0 15px;
-        border-bottom: 1px solid rgba(223, 214, 214, 0.3);
+        justify-content: flex-end; /* Push controls to the right */
+        padding: 0 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.5);
         cursor: grab;
-       .title {
-   
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    
-    // macOS Aesthetics
-    color: #aaa;
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    pointer-events: none; 
-    p {
-      margin: 0; 
-    }
-  }
-        .dots{
+        position: relative; /* Enables absolute centering for the title */
+        animation: none;
+
+        .title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%); /* Perfectly center the title */
+            color: #f2f2f2;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Ubuntu', sans-serif;
+            white-space: nowrap;
+            pointer-events: none;
+            p { margin: 0; }
+        }
+
+        .dots {
             display: flex;
-            gap: 8px;
+            align-items: center;
+            gap: 6px;
             z-index: 10;
         }
-        .dot{
-            height: 15px;
-            width: 15px;
+
+        .dot {
+            height: 24px;
+            width: 24px;
             border-radius: 50%;
-                transition: all 0.1s linear;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                position: relative;
+            background: transparent; /* Default transparent for min/max */
+            transition: background 0.12s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: default;
+
+            &.disabled {
+                opacity: 0.35;
                 cursor: default;
+                pointer-events: none;
+            }
         }
-        .red{
-                background-color: #ff5f56;
-        }
+
         .close-icon, .minimize-icon, .full-icon {
-      pointer-events: none; 
-    }
-        .close-icon{
+            pointer-events: none;
+            opacity: 1;
+            user-select: none;
+        }
+
+        .minimize-icon {
             font-size: 10px;
-            font-weight: bold;
-            color: rgba(0, 0, 0, 0.5); 
-            opacity: 0; 
-            transition: opacity 0.15s ease; 
-            user-select: none;
-        }
-        .red:hover .close-icon{
-                opacity: 1;
+            font-weight: 700;
+            color: #ffffff;
+            transform: translateY(-1px);
         }
 
-        .minimize-icon{
-            transform: translateY(-1px);
-            font-size: 30px;
-            font-weight: 300;
-            color: rgba(0, 0, 0, 0.5); 
-            opacity: 0; 
-            transition: opacity 0.15s ease; 
-            user-select: none;
-        }
-        .yellow{
-            background-color: rgb(255, 255, 52);
-        }
-        .yellow:hover .minimize-icon{
-            opacity: 1;
+        .full-icon {
+            font-size: 16px; /* Slightly larger square */
+            font-weight: 1000;
+            color: #ffffff;
         }
 
-        .full-icon{
-            transform: translateY(-1px);
+        .close-icon {
             font-size: 15px;
-            font-weight: 900;
-            color: rgba(0, 0, 0, 0.5); 
-            opacity: 0; 
-            transition: opacity 0.15s ease; 
-            user-select: none;
+            font-weight: 700;
+            color: #ffffff;
         }
-        .green{
-            background-color: rgb(51, 185, 51);
+
+        .dot.grey:hover {
+            background: rgba(255, 255, 255, 0.15); /* Show circle only on hover */
         }
-        .green:hover .full-icon{
-            opacity: 1;
+
+        .dot.orange {
+            background: #e95420; /* Persistent Ubuntu orange background */
+            &:hover {
+                background: #d94b1a; /* Darker orange on hover */
+            }
         }
     }
 
-    .main-content{
+    .main-content {
         flex-grow: 1; 
         height: 100%;
-    width: 100%;
-    overflow: auto; 
- 
+        width: 100%;
+        overflow: auto; 
     }
+}
 
+@media (prefers-reduced-motion: reduce) {
+    .windows,
+    .windows.closing,
+    .windows.minimizing,
+    .windows.restoring {
+        animation: none !important;
+    }
+    .rnd-shell.rnd-animating {
+        transition: none !important;
+    }
 }

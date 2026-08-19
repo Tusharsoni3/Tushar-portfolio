@@ -8,55 +8,91 @@ const Cli = ({ windowsName,
               setMinimizedWindows }) => {
 
     const scrollRef = useRef(null);
+    const inputRef = useRef(null); 
 
-   
+    // Converted to JSX so we can style the command names
+    const welcomeMessage = (
+      <div>
+        <br />
+        <div>Hello! Welcome to my interactive portfolio. You can navigate through my work experience, skills, and projects using terminal commands.</div>
+        <br />
+        <div>Type 'help' to see all available commands, or try:</div>
+        <div><span className="help-cmd">about</span>{`        - Who am I?`}</div>
+        <div><span className="help-cmd">skills</span>{`       - My tech stack`}</div>
+        <div><span className="help-cmd">projects</span>{`     - Check out my work`}</div>
+        <div><span className="help-cmd">experience</span>{`   - Learn about my professional background`}</div>
+        <div><span className="help-cmd">contact</span>{`      - Get in touch with me`}</div>
+        <div><span className="help-cmd">github</span>{`       - Check out my github profile`}</div>
+        <div><span className="help-cmd">resume</span>{`       - Download my resume`}</div>
+        <div><span className="help-cmd">clear</span>{`        - Clear terminal`}</div>
+        <br />
+      </div>
+    );
 
-    const welcomeMessage = `
-╔════════════════════════════════════════╗
-║      Welcome to My Portfolio CLI!      ║
-╚════════════════════════════════════════╝
+  const fileSystem = {
+    'about.txt': () => 'Final-year CS student and backend engineer, focused on backend systems, Creating scalable System  ,infrastructure, and API design (Node.js, Go , TypeScript , JavaScript).',
+    'skills.txt': () => `Backend: Node.js, Express, Golang , TypeScript , JavaScript \nDatabases: PostgreSQL, MongoDB, Redis\nInfra: Docker, AWS\nFrontend: React, JS/TS, SCSS\n`,
+    'projects.txt': () => `1. GateX - self-hosted API gateway (rate limiting, JWT auth, analytics dashboard)\n2. EncryptedChat - E2EE real-time chat app (AES-256-GCM, Socket.io)\n3. Multiplayer Game Backend Platform - mini PlayFab-style microservices (in progress)\n4. This portfolio - interactive OS-style UI\n\nType 'project <name>' for details.`,
+    'contact.txt': () => `Email: tstushar342@gmail.com\nLinkedIn: linkedin.com/in/tushar-soni-852978405\nGitHub: github.com/tusharsoni3\nLocation: Bhopal, India`,
+    'experience.txt': () => ` currently building production-grade projects (GateX, EncryptedChat, and an in-progress multiplayer game backend platform) and prepping for campus placements via DSA practice.`,
+  };
 
-Hello! 👋 Welcome to my interactive portfolio. You can navigate through my work experience, skills, and projects using terminal commands.
+  const projectDetails = {
+    gatex: `GateX: A production-grade API Gateway built from scratch. Developers register their backend services, get an API key, and all traffic flows through GateX — which handles authentication, rate limiting, request forwarding, async logging, and real-time analytics automatically.\n\nStack: Express 5, Drizzle ORM, Neon DB, Redis. Features: sliding-window rate limiting, async logging pipeline, API key generation & caching, React analytics dashboard.\n`,
+    encryptedchat: `JettMessage: A real-time, end-to-end encrypted chat application focused on reliable message delivery and a responsive messaging experience. Combines WebSocket-based real-time transport with at-least-once delivery semantics, end-to-end encryption, presence tracking, and offline message queuing.\n\nStack: Web Crypto API (E2EE), RSA-OAEP key exchange, Socket.io, BullMQ offline queuing, Redis TTL-based presence, Google OAuth (Passport.js).`,
+    gamebackend: `Multiplayer Game Backend Platform (in progress): A mini PlayFab/GameSparks-style backend, built as 4 microservices — Player, Matchmaking, Game Session, and Leaderboard — in Node.js and Go, communicating over gRPC. Redis handles distributed locks and leaderboard ranking.\n\nStatus: architecture and schema finalized, actively building.`
+  };
 
-Type 'help' to see all available commands, or try:
-about        - about Tushar Soni
-skills       - Skills i have
-projects     - Check out my work
-clear        - Clear terminal
-experience   - Learn about me
-contact      - Get in touch with me
-github       - Check out my github profile
-resume       - Download my resume
-social       - See my shitposting in socialsh
-
-Happy exploring! 🚀
-`;
   const commands = {
-    about: { fn: () => 'I am a full-stack web developer passionate about building modern web applications with React, Node.js.' },
-    skills: { fn: () => `Frontend: React,Vanilla JS, Scss, HTML/CSS\nBackend: Node.js, Express, Python, Django\nDatabases: MongoDB, PostgreSQL, MySQL\nTools: Git, Vite\n` },
-    projects: { fn: () => `1. Portfolio Website - React + Vite\n` },
-    experience: { fn: () => `I am fresher ` },
-    contact: { fn: () => `Email: tusharsoni8908@gmail.com\nPhone: 8853303990\nLocation: prayagraj UP` },
-    github: { fn: () => { window.open('https://github.com/Tusharsoni3', '_blank'); return 'Opening GitHub...'; } },
-    resume: { fn: () => 'Resume download started...' },
-    social: { fn: () => `Twitter: @TusharSoni\nLinkedIn: /in/TusharSoni\n` },
+    about: { fn: () => fileSystem['about.txt']() },
+    skills: { fn: () => fileSystem['skills.txt']() },
+    projects: { fn: () => fileSystem['projects.txt']() },
+    project: {
+      fn: (name) => projectDetails[name?.toLowerCase()] || `Unknown project. Try: gatex, encryptedchat, gamebackend`
+    },
+    experience: { fn: () => fileSystem['experience.txt']() },
+    arch: { fn: () => `I use Arch Linux (btw). I customize my workflow heavily using tiling window managers and custom dotfiles.` },
+    contact: { fn: () => fileSystem['contact.txt']() },
+    github: { fn: () => { window.open('https://github.com/tusharsoni3', '_blank'); return 'Opening GitHub...'; } },
     echo: { fn: (...args) => args.join(' ') },
+    whoami: { fn: () => 'Your friendly neighborhood Developer Tushar ' },
+    sudo: { fn: () => 'tushar is not in the sudoers file. This incident will be reported.' },
+    ls: { fn: () => Object.keys(fileSystem).join('  ') },
+    cat: {
+      fn: (filename) => {
+        if (!filename) return 'usage: cat <filename>';
+        const content = fileSystem[filename] || fileSystem[`${filename}.txt`];
+        return content ? content() : `cat: ${filename}: No such file or directory`;
+      }
+    },
+    history: {
+      fn: () => history.filter(line => typeof line === 'string' && line.startsWith('tushar@ubuntu')).join('\n') || 'No commands yet.'
+    },
+    // Converted to JSX to colorize command names
     help: {
-    fn: () => `
-Available commands:
--------------------
-about        - about Tushar Soni
-skills       - Skills i have
-projects     - Check out my work
-clear        - Clear terminal
-experience   - Learn about me
-contact      - Get in touch with me
-github       - Check out my github profile
-resume       - Download my resume
-social       - See my shitposting in socials
-
-`
-  },
+      fn: () => (
+        <div>
+          <br />
+          <div>Available commands:</div>
+          <div>-------------------</div>
+          <div><span className="help-cmd">about</span>{`        - Who am I?`}</div>
+          <div><span className="help-cmd">skills</span>{`       - My tech stack`}</div>
+          <div><span className="help-cmd">projects</span>{`     - Check out my work`}</div>
+          <div><span className="help-cmd">project</span>{`      - Details on a specific project (e.g. project gatex)`}</div>
+          <div><span className="help-cmd">experience</span>{`   - Learn about my professional background`}</div>
+          <div><span className="help-cmd">arch</span>{`         - My system config`}</div>
+          <div><span className="help-cmd">contact</span>{`      - Get in touch with me`}</div>
+          <div><span className="help-cmd">github</span>{`       - Check out my github profile`}</div>
+          <div><span className="help-cmd">resume</span>{`       - Download my resume`}</div>
+          <div><span className="help-cmd">whoami</span>{`       - Who's logged in`}</div>
+          <div><span className="help-cmd">ls</span>{`           - List files`}</div>
+          <div><span className="help-cmd">cat</span>{`          - Read a file (e.g. cat about.txt)`}</div>
+          <div><span className="help-cmd">history</span>{`      - Show command history`}</div>
+          <div><span className="help-cmd">clear</span>{`        - Clear terminal`}</div>
+          <br />
+        </div>
+      )
+    },
     clear: { fn: 'clear' }
   };
 
@@ -90,7 +126,7 @@ social       - See my shitposting in socials
         response = `Command not found: ${commandName}. Type 'help' for assistance.`;
       }
 
-      setHistory([...history, `TusharSoni-MAC ~ % ${input}`, response]);
+      setHistory([...history, `tushar@ubuntu:~$ ${input}`, response]);
       setInput('');
     }
   };
@@ -98,17 +134,24 @@ social       - See my shitposting in socials
   return (
     <Window  windowsName={windowsName} setWindowsState={setWindowsState} isMinimized={isMinimized}
       setMinimizedWindows={setMinimizedWindows}>
-      <div className='console'>
-        <div className='top-bar'>
-          <span className="terminal-title">Terminal~</span>
-        </div>
+      <div className='console' onClick={() => inputRef.current?.focus()}>
         <div className="terminal-body" ref={scrollRef}>
-          {history.map((line, i) => (
-            <div key={i} className="terminal-line">{line}</div>
-          ))}
+          {history.map((line, i) => {
+            if (typeof line === 'string' && line.startsWith('tushar@ubuntu:~$')) {
+              const cmd = line.substring(16);
+              return (
+                <div key={i} className="terminal-line">
+                  <span className="prompt-user">tushar@ubuntu</span>:<span className="prompt-dir">~</span>$ {cmd}
+                </div>
+              );
+            }
+            return <div key={i} className="terminal-line">{line}</div>;
+          })}
+          
           <div className="input-area">
-            <span className="prompt">TusharSoni-MAC ~ % </span>
+            <span className="prompt-user">tushar@ubuntu</span>:<span className="prompt-dir">~</span>$&nbsp;
             <input 
+              ref={inputRef}
               autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -118,11 +161,11 @@ social       - See my shitposting in socials
               style={{ 
                background: 'transparent',
                 border: 'none', 
-                color: 'white', 
+                color: 'inherit', 
                 outline: 'none', 
                 flex: 1,
                 fontFamily: 'inherit',
-                fontSize: 'inherit'
+                fontSize: 'inherit',
               }}
             />
           </div>

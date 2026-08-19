@@ -1,88 +1,146 @@
+@keyframes dock-in-left {
+    from { transform: translateX(-100%); opacity: 0; }
+    to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes dot-pop {
+    from { transform: translateY(-50%) scale(0); opacity: 0; }
+    to   { transform: translateY(-50%) scale(1); opacity: 1; }
+}
+
 .dock {
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-  //  z-index: 9999; 
+    left: 0;
+    top: 32px; /* Assuming your top navbar is 32px high. Adjust if needed. */
+    bottom: 0;
+    z-index: 90;
 
+    width: 64px; /* Standard Ubuntu vertical dock width */
     display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    padding: 12px 14px;
-    padding-bottom: 12px;
+    flex-direction: column; /* Stack vertically */
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
 
-    background-color: rgba(35, 35, 35, 0.4);
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-    
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 24px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-    
+    background-color: rgba(0, 0, 0, 0); /* Kept your transparency */
+    //border-right: 1px solid rgba(255, 255, 255, 0.06);
+
+    animation: dock-in-left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+    .dock-apps {
+        display: flex;
+        flex-direction: column; /* Stack apps vertically */
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
 
     .icon {
         position: relative;
-        width: 50px;
-        height: 50px;
-        border-radius: 14px;
-        
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+
         display: flex;
         justify-content: center;
         align-items: center;
-        
+
         cursor: pointer;
-        transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        &.bounce {
+            animation: dock-bounce 0.5s cubic-bezier(0.28, 0.84, 0.42, 1);
+        }
+
+        .dot {
+            position: absolute;
+            left: 2px; /* Move dot to the left side */
+            top: 50%;
+            bottom: auto;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #e95420;
+            animation: dot-pop 0.2s ease-out;
+        }
 
         img {
-            width: 100%;
-            height: 100%;
+            width: 34px;
+            height: 34px;
             pointer-events: none;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
         }
 
         .dock-tooltip {
             position: absolute;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            
-            background-color: rgba(20, 20, 20, 0.7);
-            backdrop-filter: blur(5px);
+            left: 60px; /* Tooltip pops out to the right */
+            top: 50%;
+            bottom: auto;
+            transform: translateY(-50%);
+
+            background-color: rgba(20, 20, 20, 0.92);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #e0e0e0;
-            
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+
+            padding: 4px 9px;
+            border-radius: 5px;
+            font-size: 11.5px;
+            font-family: 'Ubuntu', sans-serif;
             white-space: nowrap;
-            
+
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.2s ease-in-out, top 0.2s ease-in-out;
+            transition: opacity 0.15s ease-in-out;
             pointer-events: none;
-            
+
             &::after {
+                /* Tooltip arrow pointing left */
                 content: '';
                 position: absolute;
-                top: 100%;
-                left: 50%;
-                margin-left: -5px;
+                top: 50%;
+                right: 100%;
+                left: auto;
+                margin-top: -5px;
+                margin-left: 0;
                 border-width: 5px;
                 border-style: solid;
-                border-color: rgba(20, 20, 20, 0.7) transparent transparent transparent;
+                border-color: transparent rgba(20, 20, 20, 0.92) transparent transparent;
             }
         }
 
         &:hover {
-            transform: scale(1.4);
-            margin: 0 8px;
-
             .dock-tooltip {
                 opacity: 1;
                 visibility: visible;
-                top: -35px;
             }
         }
+
+        &:active {
+            background: rgba(255, 255, 255, 0.18);
+        }
+    }
+
+    .show-apps {
+        margin-left: 0;
+        margin-top: auto; /* Pushes the grid button to the bottom */
+
+        &.active,
+        &:hover {
+            background: rgba(233, 84, 32, 0.22);
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dock,
+    .dock .icon,
+    .dock .icon.bounce,
+    .dock .dot {
+        animation: none !important;
     }
 }

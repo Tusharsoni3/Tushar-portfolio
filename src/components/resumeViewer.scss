@@ -1,0 +1,89 @@
+.resume-viewer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #1e1e2e;
+  font-family: 'Ubuntu', 'Inter', sans-serif;
+  overflow: hidden;
+
+  /* Custom Top Toolbar */
+  .resume-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: #181825; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    
+    /* FIX 1: Lock the layout so text doesn't wrap or jump during resize animations */
+    white-space: nowrap;
+    overflow: hidden;
+    gap: 12px;
+
+    .file-name {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: #a6adc8; 
+      letter-spacing: 0.3px;
+      
+      /* Ensure long file names truncate with "..." instead of wrapping */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .download-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #e95420; 
+      color: #ffffff;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      
+      /* Stop the button from squishing during animations */
+      flex-shrink: 0; 
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      &:hover {
+        background-color: #d84c1c;
+      }
+
+      &:active {
+        transform: scale(0.96);
+      }
+    }
+  }
+
+  /* Iframe Wrapper */
+  .pdf-wrapper {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background-color: #323639; 
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      transition: opacity 0.15s ease;
+    }
+  }
+}
+
+/* FIX 2: Intercept the animation state from Window.jsx */
+/* When the window is maximizing/restoring, fade out the iframe to prevent layout jitter */
+.rnd-animating .resume-viewer-container .pdf-wrapper iframe {
+    opacity: 0 !important;
+    pointer-events: none;
+}

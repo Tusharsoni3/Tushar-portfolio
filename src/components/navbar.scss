@@ -1,28 +1,92 @@
-$text-color: rgba(255, 255, 255, 0.9);
+@keyframes navbar-in {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
 
 .navbar{
-      background: rgba(30, 30, 30, 0.7); 
-    backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%); 
-  
-  border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 100;
+    height: 30px;
+    background: #0c0c0c;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
-    color: $text-color;
-    padding: 0.1rem;
-    font-weight: 500;
+    font-family: 'Ubuntu', sans-serif;
+    color: #e6e6e6;
+    padding: 0 12px;
+    font-weight: 400;
     font-size: 13px;
 
-    
+    animation: navbar-in 0.35s ease-out both;
 
-    .left{
+    .left, .right {
         display: flex;
-        gap: 0.8rem;
+        align-items: center;
         cursor: default;
     }
-    .right{
+
+    /* workspace-switcher dots + status pill, top-left, like stock Ubuntu */
+    .left {
+        gap: 5px;
+
+        .ws-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #181818;
+        }
+
+        .status-pill {
+            width: 23px;
+            height: 10px;
+            border-radius: 5px;
+            background: #f2f2f2;
+            margin-left: 5px;
+        }
+    }
+
+    /* clock sits dead-center in the bar, GNOME shell style */
+    .center {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-50%);
         display: flex;
-         cursor: default;
+        align-items: center;
+        padding: 0 8px;
+        border-radius: 4px;
+        font-variant-numeric: tabular-nums;
+        color: #e6e6e6;
+        transition: background 0.15s ease;
+        &:hover { background: rgba(255, 255, 255, 0.08); }
+
+        .datetime-text {
+            font-family: 'Ubuntu', sans-serif;
+            font-size: 17px;
+            font-weight: 450;
+            color: #e6e6e6;
+            white-space: nowrap;
+        }
+    }
+
+    .right {
+        gap: 12px;
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: #e6e6e6;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .navbar {
+        animation: none;
     }
 }
